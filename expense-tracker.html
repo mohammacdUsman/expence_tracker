@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hisaab — Split Expenses</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- PDF Export Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #f5f0eb;
+    --surface2: #ede5de;
+    --surface3: #e5dcd5;
+    --border: #d4c4b3;
+    --accent: #6b3d7a;
+    --accent2: #8b4d9f;
+    --gold: #d4af37;
+    --dark: #2d1b4e;
+    --green: #5d8b6a;
+    --red: #c85a5a;
+    --text: #2d1b4e;
+    --muted: #8b7355;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(107, 61, 122, 0.08) 0%, transparent 60%), 
+                      radial-gradient(ellipse at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
+  }
+
+  /* HEADER */
+  .header {
+    padding: 28px 40px;
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--dark) 0%, #3d2357 100%);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: baseline; gap: 12px; }
+  .logo-text { font-family: var(--font-display); font-size: 36px; font-weight: 900; background: linear-gradient(135deg, var(--gold) 0%, #f0d98b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -1px; }\n  .logo-urdu { font-size: 13px; color: var(--gold); font-weight: 500; }
+  .header-right { font-size: 12px; color: #d4c4b3; text-align: right; line-height: 1.6; }
+
+  /* LAYOUT */
+  .app { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 73px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: linear-gradient(180deg, #f5f0eb 0%, #ede5de 100%);
+    border-right: 2px solid var(--gold);
+    padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 32px;
+    box-shadow: inset -8px 0 16px rgba(0,0,0,0.02);
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); }
+
+  /* MEMBER INPUT */
+  .input-row { display: flex; gap: 8px; }
+  input[type="text"], input[type="number"], select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--gold);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(107, 61, 122, 0.1); }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  .btn {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(107, 61, 122, 0.3);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107, 61, 122, 0.4); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    box-shadow: none;
+  }
+  .btn-outline:hover { background: rgba(107, 61, 122, 0.08); }
+  .btn-danger { background: linear-gradient(135deg, #e8b4b4, #dc9191); color: #7a3a3a; box-shadow: 0 4px 12px rgba(200, 90, 90, 0.2); }
+  .btn-danger:hover { box-shadow: 0 6px 16px rgba(200, 90, 90, 0.3); }
+
+  /* MEMBER LIST */
+  .member-list { display: flex; flex-direction: column; gap: 8px; }
+  .member-chip {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(250, 248, 245, 0.5));
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 12px;
+    animation: fadeIn 0.3s ease;
+    transition: all 0.2s;
+  }
+  .member-chip:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(107, 61, 122, 0.1); }
+  .member-chip-left { display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .member-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .remove-btn {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 16px; padding: 2px 4px;
+    line-height: 1; transition: color 0.2s;
+  }
+  .remove-btn:hover { color: var(--red); }
+
+  /* MAIN CONTENT */
+  .main { padding: 32px 40px; display: flex; flex-direction: column; gap: 32px; }
+
+  /* EXPENSE FORM */
+  .expense-card {
+    background: linear-gradient(135deg, var(--bg) 0%, rgba(212, 175, 55, 0.03) 100%);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(107, 61, 122, 0.08);
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .label { font-size: 12px; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* SPLIT SELECTOR */
+  .split-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .split-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .split-chip:hover { border-color: var(--accent); }
+  .split-chip.selected { background: rgba(107, 61, 122, 0.1); border-color: var(--accent); }
+  .split-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .split-chip.selected .dot { background: var(--accent); }
+  .split-chip span { font-size: 13px; font-weight: 500; }
+
+  .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+  /* EXPORTS */
+  .export-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .btn-export {
+    padding: 10px 20px;
+    font-size: 13px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(107, 61, 122, 0.2);
+  }
+
+  /* EXPENSES LIST */
+  .expenses-list { display: flex; flex-direction: column; gap: 12px; }
+  .expense-item {
+    background: linear-gradient(135deg, rgba(250, 248, 245, 0.9), rgba(241, 236, 231, 0.6));
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    animation: slideIn 0.3s ease;
+    position: relative;
+    transition: all 0.2s;
+    gap: 12px;
+  }
+  .expense-item:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(107, 61, 122, 0.12); }
+  .expense-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .expense-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .expense-actions button:hover {
+    color: var(--accent);
+  }
+  .expense-actions .btn-delete:hover { color: var(--red); }
+  .expense-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+  .expense-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(107, 61, 122, 0.15), rgba(139, 77, 159, 0.1));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .expense-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; color: var(--text); }
+  .expense-meta { font-size: 12px; color: var(--muted); }
+  .expense-amount { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--accent); text-align: right; }
+  .expense-amount-label { font-size: 10px; color: var(--muted); text-align: right; margin-top: 2px; }
+
+  /* BALANCES */
+  .balances-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .balance-card {
+    background: linear-gradient(135deg, rgba(250, 248, 245, 0.8), rgba(241, 236, 231, 0.5));
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(107, 61, 122, 0.08);
+    transition: all 0.2s;
+  }
+  .balance-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(107, 61, 122, 0.12); }
+  .balance-member { font-size: 13px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+  .balance-amount { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+  .balance-label { font-size: 11px; margin-top: 6px; font-weight: 500; }
+  .positive { color: var(--green); }
+  .negative { color: var(--red); }
+  .neutral { color: var(--muted); }
+
+  /* SETTLEMENT */
+  .settlement-list { display: flex; flex-direction: column; gap: 10px; }
+  .settlement-item {
+    background: linear-gradient(135deg, rgba(250, 248, 245, 0.8), rgba(241, 236, 231, 0.5));
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    animation: fadeIn 0.3s ease;
+    transition: all 0.2s;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .settlement-item:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(107, 61, 122, 0.08); }
+  .settlement-from { font-weight: 600; font-size: 14px; color: var(--text); }
+  .settlement-arrow { color: var(--muted); font-size: 18px; margin: 0 8px; }
+  .settlement-to { font-weight: 600; font-size: 14px; color: var(--text); }
+  .settlement-amount { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--accent); margin-left: auto; }
+  .settlement-pkr { font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 14px; background: var(--surface); border-radius: 10px; border: 1px dashed var(--border);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; background: transparent; padding: 0; width: 100%; border-bottom: 2px solid var(--gold); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab {
+    padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; color: var(--muted); background: none; border: none; font-family: var(--font-body);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--gold); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+
+  .total-bar {
+    background: linear-gradient(135deg, rgba(107, 61, 122, 0.08), rgba(139, 77, 159, 0.08));
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .total-label { font-size: 13px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  .total-amount { font-family: var(--font-display); font-size: 28px; font-weight: 900; color: var(--accent); }
+
+  .select-all-btn { font-size: 12px; color: var(--accent); cursor: pointer; background: none; border: none; font-family: var(--font-body); padding: 0; font-weight: 600; }
+  .select-all-btn:hover { text-decoration: underline; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .notice {
+    background: rgba(93, 139, 106, 0.08);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--green);
+    text-align: center;
+  }
+
+  /* QUICK STATS */
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, rgba(107, 61, 122, 0.06), rgba(139, 77, 159, 0.04));
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .stat-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(107, 61, 122, 0.12); }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--accent); font-family: 'Playfair Display', serif; }
+  .stat-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* MODAL */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: linear-gradient(135deg, var(--bg) 0%, rgba(212, 175, 55, 0.03) 100%);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 28px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--gold); }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 0; width: 24px; height: 24px; transition: color 0.2s; }
+  .modal-close:hover { color: var(--red); }
+  .modal-form-group { margin-bottom: 16px; }
+
+  /* HISTORY SECTION */
+  .history-container { margin-top: 20px; }
+  .history-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .history-date { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+
+  /* RESPONSIVE DESIGN */
+  /* Tablet & Small Screens (900px and below) */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 20px; gap: 20px; }
+    .main { padding: 20px; gap: 20px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .header { padding: 16px 20px; }
+    .logo-text { font-size: 24px; }
+    .balances-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .stats-container { grid-template-columns: repeat(2, 1fr); }
+    .expense-item { flex-direction: column; align-items: flex-start; }
+    .expense-left { width: 100%; margin-bottom: 12px; }
+  }
+
+  /* Mobile Phones (768px and below) */
+  @media (max-width: 768px) {
+    body { font-size: 14px; }
+    .header { padding: 14px 16px; }
+    .logo-text { font-size: 22px; }
+    .logo-urdu { font-size: 12px; }
+    .header-right { font-size: 11px; }
+    
+    .app { grid-template-columns: 1fr; }
+    .sidebar { padding: 16px; gap: 16px; }
+    .section-title { font-size: 16px; margin-bottom: 10px; }
+    
+    .main { padding: 16px; gap: 16px; }
+    .expense-card { padding: 16px; border-radius: 10px; }
+    .form-grid { grid-template-columns: 1fr; gap: 12px; }
+    .form-group { gap: 4px; }
+    .label { font-size: 11px; }
+    
+    input[type="text"], input[type="number"], select, textarea {
+      padding: 9px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+    }
+    
+    .btn {
+      padding: 9px 14px;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+    
+    .split-grid { gap: 6px; }
+    .split-chip { padding: 6px 10px; font-size: 12px; }
+    
+    .input-row { gap: 6px; }
+    .input-row input { font-size: 13px; }
+    
+    .member-list { gap: 6px; }
+    .member-chip { padding: 8px 10px; }
+    .member-name { font-size: 13px; }
+    .avatar { width: 28px; height: 28px; font-size: 12px; }
+    
+    .tabs { gap: 2px; }
+    .tab { padding: 10px 12px; font-size: 12px; }
+    
+    .expenses-list { gap: 10px; }
+    .expense-item { padding: 14px; border-radius: 8px; }
+    .expense-icon { width: 36px; height: 36px; font-size: 16px; }
+    .expense-name { font-size: 14px; }
+    .expense-meta { font-size: 11px; }
+    .expense-amount { font-size: 18px; }
+    .expense-actions { gap: 4px; }
+    .expense-actions button { font-size: 12px; }
+    
+    .balances-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .balance-card { padding: 14px; }
+    .balance-member { font-size: 12px; margin-bottom: 6px; }
+    .balance-amount { font-size: 18px; }
+    .balance-label { font-size: 10px; }
+    
+    .settlement-item { padding: 12px; flex-direction: column; align-items: flex-start; }
+    .settlement-from { font-size: 13px; }
+    .settlement-arrow { font-size: 14px; margin: 8px 0; }
+    .settlement-to { font-size: 13px; }
+    .settlement-amount { font-size: 16px; }
+    
+    .stats-container { grid-template-columns: 1fr; gap: 10px; }
+    .stat-card { padding: 14px; }
+    .stat-label { font-size: 10px; margin-bottom: 6px; }
+    .stat-value { font-size: 20px; }
+    
+    .modal-content { padding: 20px; max-width: 90vw; }
+    .modal-title { font-size: 16px; }
+    .modal-header { margin-bottom: 16px; }
+    
+    .total-bar { flex-direction: column; gap: 8px; text-align: center; padding: 14px; }
+    .total-label { font-size: 12px; }
+    .total-amount { font-size: 24px; }
+    
+    .export-buttons { gap: 8px; }
+    .btn-export { padding: 8px 12px; font-size: 12px; }
+    
+    .empty-state { padding: 30px 16px; }
+    .empty-icon { font-size: 32px; }
+  }
+
+  /* Small Phones (480px and below) */
+  @media (max-width: 480px) {
+    body { font-size: 13px; }
+    .header { padding: 12px 12px; }
+    .logo { gap: 6px; }
+    .logo-text { font-size: 18px; }
+    .logo-urdu { font-size: 11px; }
+    .header-right { font-size: 10px; line-height: 1.4; }
+    
+    .sidebar { padding: 12px; gap: 12px; }
+    .section-title { font-size: 14px; }
+    .section-title::after { height: 1px; }
+    
+    .main { padding: 12px; gap: 12px; }
+    .expense-card { padding: 12px; }
+    .form-grid { gap: 10px; }
+    
+    input[type="text"], input[type="number"], select, textarea {
+      padding: 8px 10px;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+    
+    .btn {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    .btn-sm { padding: 6px 10px; font-size: 11px; }
+    
+    .split-grid { gap: 5px; }
+    .split-chip { padding: 5px 8px; font-size: 11px; }
+    .split-chip .dot { width: 6px; height: 6px; }
+    
+    .input-row { gap: 5px; flex-wrap: wrap; }
+    
+    .member-chip { padding: 7px 8px; }
+    .member-name { font-size: 12px; }
+    .avatar { width: 26px; height: 26px; font-size: 11px; }
+    .remove-btn { font-size: 14px; }
+    
+    .tab { padding: 8px 10px; font-size: 11px; }
+    .tabs { gap: 1px; }
+    
+    .expense-item { padding: 12px; gap: 8px; }
+    .expense-left { gap: 10px; }
+    .expense-icon { width: 32px; height: 32px; font-size: 14px; }
+    .expense-name { font-size: 13px; margin-bottom: 2px; }
+    .expense-meta { font-size: 10px; }
+    .expense-amount { font-size: 16px; }
+    .expense-actions button { font-size: 11px; padding: 2px 4px; }
+    
+    .balances-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .balance-card { padding: 12px; }
+    .balance-member { font-size: 11px; margin-bottom: 6px; gap: 4px; }
+    .balance-amount { font-size: 16px; }
+    
+    .settlement-list { gap: 8px; }
+    .settlement-item { padding: 10px; }
+    .settlement-from { font-size: 12px; }
+    .settlement-arrow { font-size: 12px; margin: 6px 0; }
+    .settlement-to { font-size: 12px; }
+    .settlement-amount { font-size: 14px; }
+    
+    .stats-container { grid-template-columns: 1fr; gap: 8px; }
+    .stat-card { padding: 12px; }
+    .stat-label { font-size: 9px; margin-bottom: 4px; }
+    .stat-value { font-size: 18px; }
+    .stat-note { font-size: 11px; }
+    
+    .modal { padding: 12px; }
+    .modal-content { padding: 16px; }
+    .modal-title { font-size: 15px; }
+    
+    .total-bar { padding: 12px; }
+    .total-label { font-size: 11px; }
+    .total-amount { font-size: 20px; }
+    
+    .export-buttons { gap: 8px; }
+    .btn-export { padding: 8px 12px; font-size: 12px; }
+    
+    .empty-state { padding: 30px 16px; }
+    .empty-icon { font-size: 32px; }
+    
+    .form-actions { flex-direction: column; }
+    .form-actions .btn { width: 100%; }
+  }
+
+  /* Small Phones (480px and below) */
+  @media (max-width: 480px) {
+    body { font-size: 13px; }
+    .header { padding: 12px 12px; }
+    .logo { gap: 6px; }
+    .logo-text { font-size: 18px; }
+    .logo-urdu { font-size: 11px; }
+    .header-right { font-size: 10px; line-height: 1.4; }
+    
+    .sidebar { padding: 12px; gap: 12px; }
+    .section-title { font-size: 14px; }
+    .section-title::after { height: 1px; }
+    
+    .main { padding: 12px; gap: 12px; }
+    .expense-card { padding: 12px; }
+    .form-grid { gap: 10px; }
+    
+    input[type="text"], input[type="number"], select, textarea {
+      padding: 8px 10px;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+    
+    .btn {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    .btn-sm { padding: 6px 10px; font-size: 11px; }
+    
+    .split-grid { gap: 5px; }
+    .split-chip { padding: 5px 8px; font-size: 11px; }
+    .split-chip .dot { width: 6px; height: 6px; }
+    
+    .input-row { gap: 5px; flex-wrap: wrap; }
+    
+    .member-chip { padding: 7px 8px; }
+    .member-name { font-size: 12px; }
+    .avatar { width: 26px; height: 26px; font-size: 11px; }
+    .remove-btn { font-size: 14px; }
+    
+    .tab { padding: 8px 10px; font-size: 11px; }
+    .tabs { gap: 1px; }
+    
+    .expense-item { padding: 12px; gap: 8px; }
+    .expense-left { gap: 10px; }
+    .expense-icon { width: 32px; height: 32px; font-size: 14px; }
+    .expense-name { font-size: 13px; margin-bottom: 2px; }
+    .expense-meta { font-size: 10px; }
+    .expense-amount { font-size: 16px; }
+    .expense-actions button { font-size: 11px; padding: 2px 4px; }
+    
+    .balances-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .balance-card { padding: 12px; }
+    .balance-member { font-size: 11px; margin-bottom: 6px; gap: 4px; }
+    .balance-amount { font-size: 16px; }
+    
+    .settlement-list { gap: 8px; }
+    .settlement-item { padding: 10px; }
+    .settlement-from { font-size: 12px; }
+    .settlement-arrow { font-size: 12px; margin: 6px 0; }
+    .settlement-to { font-size: 12px; }
+    .settlement-amount { font-size: 14px; }
+    
+    .stats-container { grid-template-columns: 1fr; gap: 8px; }
+    .stat-card { padding: 12px; }
+    .stat-label { font-size: 9px; margin-bottom: 4px; }
+    .stat-value { font-size: 18px; }
+    .stat-note { font-size: 11px; }
+    
+    .modal { padding: 12px; }
+    .modal-content { padding: 16px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 15px; }
+    .modal-form-group { margin-bottom: 12px; }
+    
+    .total-bar { padding: 12px; }
+    .total-label { font-size: 11px; }
+    .total-amount { font-size: 20px; }
+    
+    .export-buttons { gap: 6px; }
+    .btn-export { padding: 7px 10px; font-size: 11px; }
+    
+    .history-item { padding: 10px 12px; font-size: 11px; }
+    
+    .form-actions { flex-direction: column; gap: 8px; }
+    .form-actions .btn { width: 100%; padding: 10px; font-size: 13px; }
+  }
+
+  /* Extra Small Phones (Below 360px) */
+  @media (max-width: 360px) {
+    .header { padding: 10px; }
+    .logo-text { font-size: 16px; }
+    .logo-urdu { font-size: 10px; }
+    .header-right { font-size: 9px; }
+    
+    .sidebar { padding: 10px; gap: 10px; }
+    .section-title { font-size: 13px; margin-bottom: 8px; }
+    
+    .main { padding: 10px; gap: 10px; }
+    
+    input[type="text"], input[type="number"], select, textarea {
+      padding: 7px 8px;
+      font-size: 12px;
+    }
+    
+    .btn { padding: 7px 10px; font-size: 11px; }
+    .btn-sm { padding: 5px 8px; font-size: 10px; }
+    
+    .expense-card { padding: 10px; }
+    .form-grid { gap: 8px; }
+    
+    .member-chip { padding: 6px 8px; }
+    .avatar { width: 24px; height: 24px; font-size: 10px; }
+    
+    .expense-item { padding: 10px; }
+    .expense-icon { width: 28px; height: 28px; font-size: 12px; }
+    .expense-amount { font-size: 14px; }
+    
+    .balance-card { padding: 10px; }
+    .balance-amount { font-size: 14px; }
+    
+    .stat-card { padding: 10px; }
+    .stat-value { font-size: 16px; }
+    
+    .modal-content { padding: 12px; }
+    .modal-title { font-size: 14px; }
+    
+    .total-amount { font-size: 18px; }
+    
+    body { overflow-x: hidden; }
+    .app { overflow-x: hidden; }
+  }
+
+  /* NOTIFICATION SYSTEM */
+  .notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .notification {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 280px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    animation: slideInNotification 0.3s ease-out;
+    pointer-events: auto;
+    backdrop-filter: blur(8px);
+  }
+
+  .notification.success {
+    background: linear-gradient(135deg, #5d8b6a 0%, #4a6d54 100%);
+    color: white;
+    border: 1px solid var(--gold);
+  }
+
+  .notification.error {
+    background: linear-gradient(135deg, #c85a5a 0%, #b04949 100%);
+    color: white;
+    border: 1px solid var(--gold);
+  }
+
+  .notification.warning {
+    background: linear-gradient(135deg, #d4a574 0%, #c69563 100%);
+    color: white;
+    border: 1px solid var(--gold);
+  }
+
+  .notification.info {
+    background: linear-gradient(135deg, #6b3d7a 0%, #8b4d9f 100%);
+    color: white;
+    border: 1px solid var(--gold);
+  }
+
+  .notification-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notification-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .notification-title {
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .notification-message {
+    font-weight: 400;
+    font-size: 12px;
+    opacity: 0.95;
+  }
+
+  .notification-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    margin-left: 8px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+
+  .notification-close:hover {
+    opacity: 1;
+  }
+
+  @keyframes slideInNotification {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutNotification {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+  }
+
+  .notification.removing {
+    animation: slideOutNotification 0.3s ease-out forwards;
+  }
+
+  /* Mobile Notifications */
+  @media (max-width: 768px) {
+    .notification-container {
+      top: 10px;
+      right: 10px;
+      left: 10px;
+    }
+
+    .notification {
+      min-width: unset;
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- NOTIFICATION CONTAINER -->
+<div id="notificationContainer" class="notification-container"></div>
+
+<div class="header">
+  <div class="logo">
+    <span class="logo-text">Hisaab</span>
+    <span class="logo-urdu">حساب</span>
+  </div>
+ 
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <div class="section-title">Group Members</div>
+      <div class="input-row" style="margin-bottom:12px">
+        <input type="text" id="memberInput" placeholder="Member name..." onkeydown="if(event.key==='Enter')addMember()">
+        <button class="btn btn-sm" onclick="addMember()">Add</button>
+      </div>
+      <div class="member-list" id="memberList">
+        <div class="empty-state" style="padding:16px">
+          <span style="font-size:24px;display:block;margin-bottom:6px">👥</span>
+          Add members to start
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Summary</div>
+      <div class="total-bar">
+        <div>
+          <div class="total-label">Total Expenses</div>
+          <div class="total-amount" id="totalAmount">₨ 0</div>
+        </div>
+        <div style="text-align:right">
+          <div class="total-label">Expenses</div>
+          <div style="font-size:24px;font-weight:700;font-family:var(--font-display)" id="expenseCount">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Add Expense -->
+    <div>
+      <div class="section-title" style="margin-bottom:16px">Add Expense</div>
+      <div class="expense-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="label">Description</label>
+            <input type="text" id="expDesc" placeholder="e.g. Biryani at BBQ Tonight">
+          </div>
+          <div class="form-group">
+            <label class="label">Amount (₨ PKR)</label>
+            <input type="text" inputmode="decimal" id="expAmount" placeholder="e.g. 3500">
+          </div>
+          <div class="form-group">
+            <label class="label">Paid By</label>
+            <select id="expPaidBy"><option value="">— Select payer —</option></select>
+          </div>
+          <div class="form-group">
+            <label class="label">Category</label>
+            <select id="expCategory">
+              <option value="🍽️">🍽️ Food</option>
+              <option value="🚗">🚗 Transport</option>
+              <option value="🏠">🏠 Rent</option>
+              <option value="🛒">🛒 Groceries</option>
+              <option value="🎮">🎮 Entertainment</option>
+              <option value="💊">💊 Medical</option>
+              <option value="⚡">⚡ Utilities</option>
+              <option value="✈️">✈️ Travel</option>
+              <option value="📦">📦 Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <label class="label">Split Between</label>
+            <button class="select-all-btn" onclick="selectAllMembers()">Select All</button>
+          </div>
+          <div class="split-grid" id="splitGrid">
+            <div style="color:var(--muted);font-size:13px;padding:8px">Add members first</div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-outline" onclick="clearForm()">Clear</button>
+          <button class="btn" onclick="addExpense()">Add Expense ₨</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Button -->
+    <div style="margin-bottom: 20px;">
+      <button class="btn btn-export" onclick="exportPDF()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 28px; font-size: 14px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);">📄 Export as PDF</button>
+    </div>
+
+    <!-- Tabs: Expenses | Balances | Settlement | Stats | History -->
+    <div>
+      <div class="tabs" style="margin-bottom:20px">
+        <button class="tab active" onclick="showTab('expenses',this)">Expenses</button>
+        <button class="tab" onclick="showTab('balances',this)">Balances</button>
+        <button class="tab" onclick="showTab('settlement',this)">Settlement</button>
+        <button class="tab" onclick="showTab('stats',this)">Stats</button>
+        <button class="tab" onclick="showTab('history',this)">History</button>
+      </div>
+
+      <!-- EXPENSES TAB -->
+      <div id="tab-expenses">
+        <div class="expenses-list" id="expensesList">
+          <div class="empty-state">
+            <span class="empty-icon">📋</span>
+            No expenses yet. Add your first one above!
+          </div>
+        </div>
+      </div>
+
+      <!-- BALANCES TAB -->
+      <div id="tab-balances" style="display:none">
+        <div class="balances-grid" id="balancesGrid">
+          <div class="empty-state" style="grid-column:1/-1">
+            <span class="empty-icon">⚖️</span>
+            Add expenses to see balances
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTLEMENT TAB -->
+      <div id="tab-settlement" style="display:none">
+        <div id="settlementContent">
+          <div class="empty-state">
+            <span class="empty-icon">🤝</span>
+            No settlement needed yet
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS TAB -->
+      <div id="tab-stats" style="display:none">
+        <div id="statsContent">
+          <div class="empty-state">
+            <span class="empty-icon">📊</span>
+            Add expenses to see statistics
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div id="tab-history" style="display:none">
+        <div id="historyContent">
+          <div class="empty-state">
+            <span class="empty-icon">📜</span>
+            No archived expenses yet
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- EDIT EXPENSE MODAL -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">Edit Expense</span>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-form-group">
+      <label class="label">Description</label>
+      <input type="text" id="editDesc" placeholder="Description">
+    </div>
+    <div class="modal-form-group">
+      <label class="label">Amount (₨)</label>
+      <input type="text" id="editAmount" placeholder="Amount" inputmode="decimal">
+    </div>
+    <div class="modal-form-group">
+      <label class="label">Paid By</label>
+      <select id="editPaidBy"></select>
+    </div>
+    <div class="modal-form-group">
+      <label class="label">Category</label>
+      <select id="editCategory">
+        <option value="🍽️">🍽️ Food</option>
+        <option value="🚗">🚗 Transport</option>
+        <option value="🏠">🏠 Rent</option>
+        <option value="🛒">🛒 Groceries</option>
+        <option value="🎮">🎮 Entertainment</option>
+        <option value="💊">💊 Medical</option>
+        <option value="⚡">⚡ Utilities</option>
+        <option value="✈️">✈️ Travel</option>
+        <option value="📦">📦 Other</option>
+      </select>
+    </div>
+    <div class="form-actions" style="margin-top: 20px;">
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn" onclick="saveEditedExpense()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+const COLORS = ['#6b3d7a','#8b4d9f','#5d8b6a','#d4af37','#c85a5a','#a86fbf','#d9a876','#9d5d8f','#d4a574','#7b5d9e'];
+
+// NOTIFICATION SYSTEM
+function showNotification(type, title, message = '', duration = 4000) {
+  const container = document.getElementById('notificationContainer');
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  const iconMap = {
+    success: '✓',
+    error: '✕',
+    warning: '⚠',
+    info: 'ℹ'
+  };
+  
+  notification.innerHTML = `
+    <div class="notification-icon">${iconMap[type] || iconMap.info}</div>
+    <div class="notification-content">
+      <div class="notification-title">${title}</div>
+      ${message ? `<div class="notification-message">${message}</div>` : ''}
+    </div>
+    <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
+  `;
+  
+  container.appendChild(notification);
+  
+  if (duration > 0) {
+    setTimeout(() => {
+      notification.classList.add('removing');
+      setTimeout(() => notification.remove(), 300);
+    }, duration);
+  }
+}
+
+let members = [];
+let expenses = [];
+let archivedExpenses = [];
+let selectedSplit = new Set();
+let memberIdCounter = 1;
+let editingExpenseId = null;
+
+// STORAGE FUNCTIONS
+function saveData() {
+  localStorage.setItem('hisaab_members', JSON.stringify(members));
+  localStorage.setItem('hisaab_expenses', JSON.stringify(expenses));
+  localStorage.setItem('hisaab_archived', JSON.stringify(archivedExpenses));
+  localStorage.setItem('hisaab_counter', String(memberIdCounter));
+}
+
+function loadData() {
+  const savedMembers = localStorage.getItem('hisaab_members');
+  const savedExpenses = localStorage.getItem('hisaab_expenses');
+  const savedArchived = localStorage.getItem('hisaab_archived');
+  const savedCounter = localStorage.getItem('hisaab_counter');
+  
+  if (savedMembers) members = JSON.parse(savedMembers);
+  if (savedExpenses) expenses = JSON.parse(savedExpenses);
+  if (savedArchived) archivedExpenses = JSON.parse(savedArchived);
+  if (savedCounter) memberIdCounter = parseInt(savedCounter);
+  
+  return savedMembers !== null;
+}
+
+function clearAllData() {
+  if (confirm('Are you sure? This will delete all members and expenses.')) {
+    members = [];
+    expenses = [];
+    memberIdCounter = 1;
+    selectedSplit.clear();
+    localStorage.removeItem('hisaab_members');
+    localStorage.removeItem('hisaab_expenses');
+    localStorage.removeItem('hisaab_counter');
+    location.reload();
+  }
+}
+
+function addMember() {
+  const input = document.getElementById('memberInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (members.find(m => m.name.toLowerCase() === name.toLowerCase())) {
+    showNotification('warning', 'Member Exists', 'This member is already in the group');
+    return;
+  }
+  // Use a simple integer counter to avoid float ID bugs
+  members.push({ id: memberIdCounter++, name, color: COLORS[members.length % COLORS.length] });
+  input.value = '';
+  saveData();
+  renderMembers();
+  updateSelectors();
+  showNotification('success', 'Member Added', `${name} has been added to the group`);
+}
+
+function removeMember(id) {
+  const member = members.find(m => m.id === id);
+  const name = member?.name || 'Member';
+  members = members.filter(m => m.id !== id);
+  saveData();
+  renderMembers();
+  updateSelectors();
+  renderAll();
+  showNotification('success', 'Member Removed', `${name} has been removed from the group`);
+}
+
+function renderMembers() {
+  const list = document.getElementById('memberList');
+  if (!members.length) {
+    list.innerHTML = `<div class="empty-state" style="padding:24px;margin:0;border:none;background:none"><span style="font-size:32px;display:block;margin-bottom:8px">👥</span><span style="font-size:13px">Add members to start</span></div>`;
+    return;
+  }
+  list.innerHTML = members.map(m => `
+    <div class="member-chip">
+      <div class="member-chip-left">
+        <div class="avatar" style="background:${m.color}">${m.name[0].toUpperCase()}</div>
+        <span class="member-name">${m.name}</span>
+      </div>
+      <button class="remove-btn" onclick="removeMember(${m.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function updateSelectors() {
+  // Paid by dropdown
+  const paidBy = document.getElementById('expPaidBy');
+  const cur = Number(paidBy.value);
+  paidBy.innerHTML = '<option value="">— Select payer —</option>' +
+    members.map(m => `<option value="${m.id}" ${m.id === cur ? 'selected' : ''}>${m.name}</option>`).join('');
+
+  // Split grid
+  const grid = document.getElementById('splitGrid');
+  if (!members.length) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">Add members first</div>';
+    return;
+  }
+  grid.innerHTML = members.map(m => {
+    const isSelected = selectedSplit.has(Number(m.id));
+    return `
+      <div class="split-chip ${isSelected ? 'selected' : ''}" onclick="toggleSplit(${m.id})" id="chip-${m.id}">
+        <div class="dot" style="${isSelected ? `background:${m.color}` : ''}"></div>
+        <span>${m.name}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleSplit(id) {
+  id = Number(id);
+  if (selectedSplit.has(id)) selectedSplit.delete(id);
+  else selectedSplit.add(id);
+  updateSelectors();
+}
+
+function selectAllMembers() {
+  if (members.length === 0) return;
+  members.forEach(m => selectedSplit.add(Number(m.id)));
+  updateSelectors();
+  showNotification('success', 'All Selected', `${members.length} members selected for split`);
+}
+
+function clearForm() {
+  document.getElementById('expDesc').value = '';
+  document.getElementById('expAmount').value = '';
+  document.getElementById('expPaidBy').value = '';
+  selectedSplit.clear();
+  updateSelectors();
+}
+
+function addExpense() {
+  const desc = document.getElementById('expDesc').value.trim();
+  // Convert Eastern Arabic/Urdu numerals then parse
+  const rawVal = document.getElementById("expAmount").value
+    .replace(/[\u0660-\u0669]/g, function(d){ return d.charCodeAt(0) - 0x0660; })
+    .replace(/[\u06F0-\u06F9]/g, function(d){ return d.charCodeAt(0) - 0x06F0; })
+    .replace(/[^0-9.]/g, "");
+  const amount = parseFloat(rawVal);
+  // Use Number() not parseInt() to preserve the exact integer ID stored in option value
+  const paidById = Number(document.getElementById('expPaidBy').value);
+  const category = document.getElementById('expCategory').value;
+
+  if (!desc) { showNotification('error', 'Missing Information', 'Please enter a description'); return; }
+  if (!amount || amount <= 0) { showNotification('error', 'Invalid Amount', 'Please enter a valid amount'); return; }
+  if (!paidById) { showNotification('error', 'Payer Required', 'Please select who paid'); return; }
+  if (selectedSplit.size === 0) { showNotification('error', 'Split Required', 'Please select who to split with'); return; }
+
+  expenses.push({
+    id: memberIdCounter++,
+    desc, amount, paidById, category,
+    // Store split as array of number IDs (not strings)
+    splitBetween: [...selectedSplit].map(Number),
+    date: new Date().toLocaleDateString('en-GB')
+  });
+
+  saveData();
+  clearForm();
+  renderAll();
+  showNotification('success', 'Expense Added', `₨ ${formatPKR(amount)} expense added successfully`);
+}
+
+function deleteExpense(id) {
+  const expense = expenses.find(e => e.id === id);
+  if (!confirm('Remove this expense?')) return;
+  expenses = expenses.filter(e => e.id !== id);
+  saveData();
+  renderAll();
+  showNotification('success', 'Expense Deleted', `${expense?.desc || 'Expense'} has been removed`);
+}
+
+function renderAll() {
+  renderExpenses();
+  renderBalances();
+  renderSettlement();
+  updateSummary();
+}
+
+function getMember(id) { return members.find(m => m.id === id); }
+
+function renderExpenses() {
+  const list = document.getElementById('expensesList');
+  if (!expenses.length) {
+    list.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span>No expenses yet. Add your first one above!</div>`;
+    return;
+  }
+  list.innerHTML = expenses.map(e => {
+    const payer = getMember(e.paidById);
+    const split = e.splitBetween.map(id => getMember(id)?.name).filter(Boolean).join(', ');
+    const perPerson = e.amount / e.splitBetween.length;
+    return `
+      <div class="expense-item">
+        <div class="expense-left">
+          <div class="expense-icon">${e.category}</div>
+          <div>
+            <div class="expense-name">${e.desc}</div>
+            <div class="expense-meta">Paid by <strong>${payer?.name || '?'}</strong> · Split: ${split}</div>
+            <div class="expense-meta">${e.date} · ₨${formatPKR(perPerson)}/person</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div>
+            <div class="expense-amount">₨ ${formatPKR(e.amount)}</div>
+          </div>
+          <div class="expense-actions">
+            <button class="btn-edit" onclick="openEditModal(${e.id})" title="Edit">✏️</button>
+            <button class="btn-delete" onclick="deleteExpense(${e.id})" title="Delete">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function computeBalances() {
+  // net[memberId] = total_paid - total_owed
+  // Positive = gets back money, Negative = owes money
+  const net = {};
+  members.forEach(m => { net[m.id] = 0; });
+
+  expenses.forEach(e => {
+    const n = e.splitBetween.length;
+    if (n === 0) return;
+    const share = e.amount / n;
+
+    // Payer gets credit for full amount
+    if (net[e.paidById] !== undefined) {
+      net[e.paidById] += e.amount;
+    }
+
+    // Everyone in the split owes their share
+    e.splitBetween.forEach(mid => {
+      if (net[mid] !== undefined) {
+        net[mid] -= share;
+      }
+    });
+  });
+
+  return net;
+}
+
+function renderBalances() {
+  const grid = document.getElementById('balancesGrid');
+  if (!members.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">⚖️</span>Add members to see balances</div>`;
+    return;
+  }
+  if (!expenses.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">⚖️</span>Add expenses to see balances</div>`;
+    return;
+  }
+  const net = computeBalances();
+  grid.innerHTML = members.map(m => {
+    const bal = net[m.id] !== undefined ? net[m.id] : 0;
+    const THRESHOLD = 0.005;
+    const cls = bal > THRESHOLD ? 'positive' : bal < -THRESHOLD ? 'negative' : 'neutral';
+    const label = bal > THRESHOLD ? 'gets back' : bal < -THRESHOLD ? 'owes' : 'settled ✓';
+    // Show exact amount (round to 2 decimal places for display, but keep precision for calculation)
+    const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
+    return `
+      <div class="balance-card">
+        <div class="balance-member">
+          <div class="avatar" style="background:${m.color};width:24px;height:24px;font-size:10px">${m.name[0].toUpperCase()}</div>
+          ${m.name}
+        </div>
+        <div class="balance-amount ${cls}">₨ ${display}</div>
+        <div class="balance-label ${cls}">${label}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Format PKR: fully manual formatter — no toLocaleString (all locale variants can be buggy)
+function formatPKR(amount) {
+  const rounded = Math.round(amount * 100) / 100;
+  const isWhole = Number.isInteger(rounded);
+  const abs = Math.abs(rounded);
+  const str = isWhole ? String(Math.round(abs)) : abs.toFixed(2);
+  const parts = str.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
+
+function renderSettlement() {
+  const container = document.getElementById('settlementContent');
+  if (!expenses.length) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🤝</span>No settlement needed yet</div>`;
+    return;
+  }
+
+  const net = computeBalances();
+  const THRESHOLD = 0.005;
+
+  // Build debtor/creditor lists using exact float values
+  const debtors = [];
+  const creditors = [];
+  Object.entries(net).forEach(([id, bal]) => {
+    // Round to 2 decimal places to eliminate floating-point noise
+    const b = Math.round(bal * 100) / 100;
+    if (b > THRESHOLD) creditors.push({ id: Number(id), amt: b });
+    else if (b < -THRESHOLD) debtors.push({ id: Number(id), amt: -b });
+  });
+
+  const transactions = [];
+  // Work on copies
+  const d = debtors.map(x => ({ ...x }));
+  const c = creditors.map(x => ({ ...x }));
+
+  let i = 0, j = 0;
+  while (i < d.length && j < c.length) {
+    const amount = Math.round(Math.min(d[i].amt, c[j].amt) * 100) / 100;
+    if (amount > THRESHOLD) {
+      transactions.push({ from: d[i].id, to: c[j].id, amount });
+    }
+    d[i].amt = Math.round((d[i].amt - amount) * 100) / 100;
+    c[j].amt = Math.round((c[j].amt - amount) * 100) / 100;
+    if (d[i].amt <= THRESHOLD) i++;
+    if (c[j].amt <= THRESHOLD) j++;
+  }
+
+  if (!transactions.length) {
+    container.innerHTML = `<div class="notice">✅ Everyone is settled up!</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="margin-bottom:16px;font-size:13px;color:var(--muted)">${transactions.length} payment${transactions.length > 1 ? 's' : ''} needed to settle all debts</div>
+    <div class="settlement-list">
+      ${transactions.map(t => {
+        const from = getMember(t.from);
+        const to = getMember(t.to);
+        return `
+          <div class="settlement-item">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar" style="background:${from?.color};width:32px;height:32px">${from?.name[0].toUpperCase()}</div>
+              <span class="settlement-from">${from?.name}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;color:var(--muted)">
+              <span>pays</span>
+              <span style="font-size:20px">→</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="settlement-to">${to?.name}</span>
+              <div class="avatar" style="background:${to?.color};width:32px;height:32px">${to?.name[0].toUpperCase()}</div>
+            </div>
+            <div>
+              <span class="settlement-amount">₨ ${formatPKR(t.amount)}</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function updateSummary() {
+  const total = expenses.reduce((s, e) => s + e.amount, 0);
+  document.getElementById('totalAmount').textContent = '₨ ' + formatPKR(total);
+  document.getElementById('expenseCount').textContent = expenses.length;
+}
+
+function showTab(name, el) {
+  ['expenses','balances','settlement','stats','history'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+name).style.display = 'block';
+  el.classList.add('active');
+  renderAll();
+  if (name === 'stats') renderStats();
+  if (name === 'history') renderHistory();
+}
+
+// Allow Enter to add members
+document.getElementById('memberInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addMember();
+});
+
+// EDIT EXPENSE FUNCTIONS
+function openEditModal(expenseId) {
+  editingExpenseId = expenseId;
+  const expense = expenses.find(e => e.id === expenseId);
+  if (!expense) return;
+
+  document.getElementById('editDesc').value = expense.desc;
+  document.getElementById('editAmount').value = expense.amount;
+  document.getElementById('editCategory').value = expense.category;
+  
+  const paidBySelect = document.getElementById('editPaidBy');
+  paidBySelect.innerHTML = members.map(m => `<option value="${m.id}" ${m.id === expense.paidById ? 'selected' : ''}>${m.name}</option>`).join('');
+  
+  document.getElementById('editModal').classList.add('active');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('active');
+  editingExpenseId = null;
+}
+
+function saveEditedExpense() {
+  const expense = expenses.find(e => e.id === editingExpenseId);
+  if (!expense) return;
+
+  const desc = document.getElementById('editDesc').value.trim();
+  const rawVal = document.getElementById('editAmount').value.replace(/[^0-9.]/g, '');
+  const amount = parseFloat(rawVal);
+  const paidById = Number(document.getElementById('editPaidBy').value);
+  const category = document.getElementById('editCategory').value;
+
+  if (!desc) { showNotification('error', 'Missing Description', 'Please enter a description'); return; }
+  if (!amount || amount <= 0) { showNotification('error', 'Invalid Amount', 'Please enter a valid amount'); return; }
+  if (!paidById) { showNotification('error', 'Payer Required', 'Please select who paid'); return; }
+
+  expense.desc = desc;
+  expense.amount = amount;
+  expense.paidById = paidById;
+  expense.category = category;
+
+  saveData();
+  closeEditModal();
+  renderAll();
+  showNotification('success', 'Expense Updated', `${desc} has been updated successfully`);
+}
+
+// EXPORT FUNCTIONS
+function exportCSV() {
+  if (expenses.length === 0) {
+    showNotification('info', 'No Expenses', 'Add some expenses before exporting');
+    return;
+  }
+
+  let csv = 'Description,Amount (₨),Paid By,Category,Date,Split Between\n';
+  expenses.forEach(e => {
+    const payer = getMember(e.paidById)?.name || '?';
+    const split = e.splitBetween.map(id => getMember(id)?.name).filter(Boolean).join('; ');
+    csv += `"${e.desc}",${e.amount},"${payer}","${e.category}","${e.date}","${split}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `hisaab_expenses_${new Date().toISOString().slice(0,10)}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showNotification('success', 'CSV Exported', `${expenses.length} expenses exported successfully`);
+}
+
+function exportJSON() {
+  if (expenses.length === 0) {
+    showNotification('info', 'No Expenses', 'Add some expenses before exporting');
+    return;
+  }
+
+  const data = {
+    members: members,
+    expenses: expenses,
+    exportDate: new Date().toISOString(),
+    totalAmount: expenses.reduce((s, e) => s + e.amount, 0)
+  };
+
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `hisaab_expenses_${new Date().toISOString().slice(0,10)}.json`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showNotification('success', 'JSON Exported', `${expenses.length} expenses exported successfully`);
+}
+
+function shareText() {
+  if (expenses.length === 0) {
+    showNotification('info', 'No Expenses', 'Add some expenses to share');
+    return;
+  }
+
+  let text = '📊 Expense Summary - Hisaab\n';
+  text += '=' .repeat(40) + '\n\n';
+  
+  text += 'Members:\n';
+  members.forEach(m => text += `• ${m.name}\n`);
+  
+  text += `\nTotal Expenses: ₨ ${formatPKR(expenses.reduce((s, e) => s + e.amount, 0))}\n`;
+  text += `Number of Expenses: ${expenses.length}\n\n`;
+
+  text += 'Balance Summary:\n';
+  const net = computeBalances();
+  members.forEach(m => {
+    const bal = net[m.id] !== undefined ? net[m.id] : 0;
+    const THRESHOLD = 0.005;
+    const status = bal > THRESHOLD ? 'gets back' : bal < -THRESHOLD ? 'owes' : 'settled';
+    const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
+    text += `• ${m.name}: ₨ ${display} (${status})\n`;
+  });
+
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `hisaab_summary_${new Date().toISOString().slice(0,10)}.txt`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showNotification('success', 'Summary Shared', 'Expense summary exported as text file');
+}
+
+// STATS FUNCTIONS
+function renderStats() {
+  const container = document.getElementById('statsContent');
+  
+  if (!expenses.length) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">📊</span>Add expenses to see statistics</div>`;
+    return;
+  }
+
+  const net = computeBalances();
+  const totalAmount = expenses.reduce((s, e) => s + e.amount, 0);
+  const avgExpense = totalAmount / expenses.length;
+  
+  // Category breakdown
+  const categorySpend = {};
+  expenses.forEach(e => {
+    categorySpend[e.category] = (categorySpend[e.category] || 0) + e.amount;
+  });
+  
+  // Top payer
+  const payerSpend = {};
+  expenses.forEach(e => {
+    const payer = getMember(e.paidById);
+    if (payer) payerSpend[payer.name] = (payerSpend[payer.name] || 0) + e.amount;
+  });
+  const topPayer = Object.entries(payerSpend).sort((a, b) => b[1] - a[1])[0];
+
+  let html = '<div class="stats-container">';
+  html += `<div class="stat-card"><div class="stat-label">Total Spent</div><div class="stat-value">₨ ${formatPKR(totalAmount)}</div></div>`;
+  html += `<div class="stat-card"><div class="stat-label">Average Expense</div><div class="stat-value">₨ ${formatPKR(avgExpense)}</div></div>`;
+  html += `<div class="stat-card"><div class="stat-label">Number of Expenses</div><div class="stat-value">${expenses.length}</div></div>`;
+  if (topPayer) {
+    html += `<div class="stat-card"><div class="stat-label">Top Payer</div><div class="stat-value">${topPayer[0]}</div><div class="stat-note">₨ ${formatPKR(topPayer[1])}</div></div>`;
+  }
+  html += '</div>';
+
+  html += '<div style="margin-top: 20px;"><h3 style="font-size: 16px; margin-bottom: 12px; color: var(--accent);">Spending by Category</h3>';
+  const sortedCategories = Object.entries(categorySpend).sort((a, b) => b[1] - a[1]);
+  sortedCategories.forEach(([cat, amt]) => {
+    const pct = ((amt / totalAmount) * 100).toFixed(1);
+    html += `<div style="margin-bottom: 12px;"><div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>${cat}</span><span>₨ ${formatPKR(amt)}</span></div><div style="background: var(--surface2); height: 6px; border-radius: 3px; overflow: hidden;"><div style="background: var(--accent); height: 100%; width: ${pct}%;"></div></div></div>`;
+  });
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+// HISTORY/ARCHIVE FUNCTIONS
+function archiveExpense(id) {
+  const expense = expenses.find(e => e.id === id);
+  if (!expense) return;
+  
+  archivedExpenses.push({ ...expense, archivedDate: new Date().toLocaleString() });
+  expenses = expenses.filter(e => e.id !== id);
+  saveData();
+  renderAll();
+  showNotification('success', 'Archived', `${expense.desc} moved to history`);
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyContent');
+  
+  if (archivedExpenses.length === 0) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">📜</span>No archived expenses yet</div>`;
+    return;
+  }
+
+  const sortedArchived = [...archivedExpenses].reverse();
+  let html = '<div class="history-container">';
+  
+  sortedArchived.forEach(e => {
+    const payer = getMember(e.paidById);
+    const split = e.splitBetween.map(id => getMember(id)?.name).filter(Boolean).join(', ');
+    html += `
+      <div class="history-item">
+        <div class="history-date">${e.archivedDate} - Archived</div>
+        <div style="margin-bottom: 6px;"><strong>${e.category} ${e.desc}</strong> - ₨ ${formatPKR(e.amount)}</div>
+        <div style="font-size: 11px; opacity: 0.8;">Paid by ${payer?.name}, Split: ${split}</div>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// PDF EXPORT
+function exportPDF() {
+  if (expenses.length === 0) {
+    showNotification('info', 'No Expenses', 'Add some expenses before exporting');
+    return;
+  }
+  showNotification('success', 'PDF Generating', 'Your report is being prepared...');
+
+  const totalAmount = expenses.reduce((s, e) => s + e.amount, 0);
+  const avgExpense = totalAmount / expenses.length;
+  const reportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const reportTime = new Date().toLocaleTimeString();
+  const docId = 'HR-' + new Date().getTime();
+
+  const element = document.createElement('div');
+  element.style.padding = '0';
+  element.style.backgroundColor = 'white';
+  element.style.color = '#1f2937';
+  element.style.fontFamily = 'Arial, sans-serif';
+  element.innerHTML = `
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #6b3d7a 0%, #8b4d9f 100%); color: white; padding: 40px 30px; text-align: center; border-bottom: 4px solid #4a2857;">
+      <div style="font-size: 32px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px;">HISAAB</div>
+      <div style="font-size: 13px; opacity: 0.95; letter-spacing: 1px; text-transform: uppercase;">Expense Management System</div>
+    </div>
+
+    <!-- DOCUMENT INFO -->
+    <div style="background: #f8f9fb; padding: 20px 30px; border-bottom: 1px solid #d9dfe8; display: flex; justify-content: space-between; font-size: 12px; color: #6b7280;">
+      <div>
+        <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Report Generated</div>
+        <div>${reportDate} at ${reportTime}</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Document ID</div>
+        <div style="font-family: monospace; font-weight: 500;">${docId}</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY SECTION -->
+    <div style="padding: 30px; border-bottom: 2px solid #e5e9f0;">
+      <div style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <span style="width: 4px; height: 20px; background: #6b3d7a; border-radius: 2px;"></span>
+        Overview
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+        <div style="background: linear-gradient(135deg, rgba(107, 61, 122, 0.1), rgba(139, 77, 159, 0.05)); border-left: 4px solid #6b3d7a; padding: 16px; border-radius: 4px;">
+          <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Total Expenses</div>
+          <div style="font-size: 24px; font-weight: 700; color: #6b3d7a;">₨ ${formatPKR(totalAmount)}</div>
+        </div>
+        <div style="background: linear-gradient(135deg, rgba(139, 77, 159, 0.1), rgba(107, 61, 122, 0.05)); border-left: 4px solid #8b4d9f; padding: 16px; border-radius: 4px;">
+          <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Transactions</div>
+          <div style="font-size: 24px; font-weight: 700; color: #8b4d9f;">${expenses.length}</div>
+        </div>
+        <div style="background: linear-gradient(135deg, rgba(139, 77, 159, 0.08), rgba(107, 61, 122, 0.08)); border-left: 4px solid #6b3d7a; padding: 16px; border-radius: 4px;">
+          <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Average</div>
+          <div style="font-size: 24px; font-weight: 700; color: #1f2937;">₨ ${formatPKR(avgExpense)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERS SECTION -->
+    <div style="padding: 30px; border-bottom: 2px solid #e5e9f0;">
+      <div style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <span style="width: 4px; height: 20px; background: #6b3d7a; border-radius: 2px;"></span>
+        Member Balances
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #f8f9fb; border-bottom: 2px solid #d9dfe8;">
+          <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #1f2937; font-size: 13px;">Member</th>
+          <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #1f2937; font-size: 13px;">Status</th>
+          <th style="padding: 14px 16px; text-align: right; font-weight: 600; color: #1f2937; font-size: 13px;">Amount</th>
+        </tr>
+        ${members.map((m, idx) => {
+          const net = computeBalances();
+          const bal = net[m.id] || 0;
+          const status = bal > 0.005 ? '✓ Gets Back' : bal < -0.005 ? '⚠ Owes' : '✓ Settled';
+          const statusColor = bal > 0.005 ? '#10b981' : bal < -0.005 ? '#ef4444' : '#6b7280';
+          const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
+          const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8f9fb';
+          return `
+            <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e9f0;">
+              <td style="padding: 14px 16px; color: #1f2937; font-weight: 500;">${m.name}</td>
+              <td style="padding: 14px 16px; color: ${statusColor}; font-weight: 600; font-size: 13px;">${status}</td>
+              <td style="padding: 14px 16px; text-align: right; font-weight: 600; color: #1f2937;">₨ ${display}</td>
+            </tr>
+          `;
+        }).join('')}
+      </table>
+    </div>
+
+    <!-- EXPENSES SECTION -->
+    <div style="padding: 30px;">
+      <div style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <span style="width: 4px; height: 20px; background: #6b3d7a; border-radius: 2px;"></span>
+        Transaction Details
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #f8f9fb; border-bottom: 2px solid #d9dfe8;">
+          <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #1f2937; font-size: 13px;">Date</th>
+          <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #1f2937; font-size: 13px;">Description</th>
+          <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #1f2937; font-size: 13px;">Category</th>
+          <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #1f2937; font-size: 13px;">Paid By</th>
+          <th style="padding: 14px 16px; text-align: right; font-weight: 600; color: #1f2937; font-size: 13px;">Amount</th>
+        </tr>
+        ${expenses.map((e, idx) => {
+          const payer = getMember(e.paidById);
+          const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8f9fb';
+          return `
+            <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e9f0;">
+              <td style="padding: 14px 16px; color: #6b7280; font-size: 13px;">${e.date}</td>
+              <td style="padding: 14px 16px; color: #1f2937; font-weight: 500;">${e.desc}</td>
+              <td style="padding: 14px 16px; color: #6b7280; font-size: 13px;">${e.category}</td>
+              <td style="padding: 14px 16px; color: #1f2937; font-weight: 500;">${payer?.name || '—'}</td>
+              <td style="padding: 14px 16px; text-align: right; font-weight: 600; color: #6b3d7a;">₨ ${formatPKR(e.amount)}</td>
+            </tr>
+          `;
+        }).join('')}
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background: #f8f9fb; padding: 24px 30px; border-top: 1px solid #d9dfe8; color: #6b7280; font-size: 11px; text-align: center;">
+      <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #d9dfe8;">
+        <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">Hisaab – Expense Management System</div>
+        <div>Professional expense tracking and settlement platform</div>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 10px;">
+        <div>Report ID: <strong>${docId}</strong></div>
+        <div>Generated: <strong>${reportDate}</strong></div>
+        <div>Members: <strong>${members.length}</strong></div>
+      </div>
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #d9dfe8; opacity: 0.7;">
+        This is an official report generated by Hisaab. All data is accurate as of the time of generation.
+      </div>
+    </div>
+  `;
+
+  const opt = {
+    margin: [10, 10, 15, 10],
+    filename: `Hisaab_Report_${new Date().toISOString().slice(0,10)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+  };
+
+  html2pdf().set(opt).from(element).save();
+  showNotification('success', 'PDF Generated', 'Professional report downloaded successfully');
+}
+
+function showTab(name, el) {
+  ['expenses','balances','settlement','stats','history'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+name).style.display = 'block';
+  el.classList.add('active');
+  renderAll();
+  if (name === 'stats') renderStats();
+  if (name === 'history') renderHistory();
+}
+
+// Allow Enter to add members
+document.getElementById('memberInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addMember();
+});
+
+// Initialize: Load data or show demo
+function initialize() {
+  const hasData = loadData();
+  
+  if (!hasData) {
+    // Only load demo data if no saved data exists
+    ['Ahmed', 'Fatima', 'Hassan', 'Zara'].forEach(name => {
+      members.push({ id: memberIdCounter++, name, color: COLORS[members.length % COLORS.length] });
+    });
+  }
+  renderMembers();
+  updateSelectors();
+  renderAll();
+}
+
+// Run initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initialize);
+} else {
+  initialize();
+}
+
+</script>
+</body>
+</html>
