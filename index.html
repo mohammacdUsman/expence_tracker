@@ -1495,7 +1495,7 @@ function showNotification(type, title, message = '', duration = 4000) {
   const notification = document.createElement('div');
   notification.className = `notification ${type}`;
 
-  const iconMap = { success: '[Done]', error: '[Error]', warning: '[Warning]', info: '[Info]' };
+  const iconMap = { success: '', error: '', warning: '', info: '' };
 
   notification.innerHTML = `
     <div class="notification-icon">${iconMap[type] || iconMap.info}</div>
@@ -1957,7 +1957,7 @@ function renderExpenses() {
       const member = getMember(memberId);
       const isPaid = paidStatus[memberId] || false;
       const status = isPaid ? 'paid' : 'pending';
-      const statusText = isPaid ? '[Done] Paid' : '[Pending] Pending';
+      const statusText = isPaid ? 'Paid' : ' Pending';
       paymentTrackerHTML += `
         <div class="payment-status-item">
           <div class="payment-status-left">
@@ -1965,7 +1965,7 @@ function renderExpenses() {
             <span>${member?.name}</span>
             <span class="payment-badge ${status}">${statusText}</span>
           </div>
-          ${!isPaid ? `<button class="mark-paid-btn" onclick="markAsPaid(${e.id}, ${memberId})">Mark Paid</button>` : '<span style="font-size:10px;color:#5d8b6a;font-weight:600">[Done]</span>'}
+          ${!isPaid ? `<button class="mark-paid-btn" onclick="markAsPaid(${e.id}, ${memberId})">Mark Paid</button>` : '<span style="font-size:10px;color:#5d8b6a;font-weight:600"></span>'}
         </div>
       `;
     });
@@ -1980,7 +1980,7 @@ function renderExpenses() {
             <div class="expense-meta">Paid by <strong>${payer?.name || '?'}</strong> · Split: ${split}</div>
             <div class="expense-meta">${e.date} · ₨${formatPKR(perPerson)}/person</div>
             ${paymentTrackerHTML}
-            ${allPaid ? '<div style="font-size:11px;color:#5d8b6a;font-weight:600;margin-top:8px;">[Done] All payments received - Ready to archive</div>' : ''}
+            ${allPaid ? '<div style="font-size:11px;color:#5d8b6a;font-weight:600;margin-top:8px;"> All payments received - Ready to archive</div>' : ''}
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-direction:column;">
@@ -2033,7 +2033,7 @@ function renderBalances() {
     const bal = net[m.id] !== undefined ? net[m.id] : 0;
     const THRESHOLD = 0.005;
     const cls = bal > THRESHOLD ? 'positive' : bal < -THRESHOLD ? 'negative' : 'neutral';
-    const label = bal > THRESHOLD ? 'gets back' : bal < -THRESHOLD ? 'owes' : 'settled [Done]';
+    const label = bal > THRESHOLD ? 'gets back' : bal < -THRESHOLD ? 'owes' : 'settled';
     const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
     return `
       <div class="balance-card">
@@ -2288,7 +2288,7 @@ function renderHistory() {
     e.splitBetween.forEach(memberId => {
       const member = getMember(memberId);
       if (paidStatus[memberId]) {
-        statusHTML += `<span class="history-status-item paid">[Done] ${member?.name}</span>`;
+        statusHTML += `<span class="history-status-item paid"> ${member?.name}</span>`;
       }
     });
     
@@ -2296,7 +2296,7 @@ function renderHistory() {
     
     html += `
       <div class="history-item">
-        <div class="history-date">[Done] ${e.completedDate || e.archivedDate} - Completed</div>
+        <div class="history-date"> ${e.completedDate || e.archivedDate} - Completed</div>
         <div style="margin-bottom: 6px;"><strong>${e.category} ${e.desc}</strong> - ₨ ${formatPKR(e.amount)}</div>
         <div style="font-size: 11px; opacity: 0.8;">Paid by ${payer?.name}, Split: ${split}</div>
         ${statusHTML}
@@ -2380,7 +2380,7 @@ function exportPDF() {
         ${members.map((m, idx) => {
           const net = computeBalances();
           const bal = net[m.id] || 0;
-          const status = bal > 0.005 ? '[Done] Gets Back' : bal < -0.005 ? '[Warning] Owes' : '[Done] Settled';
+          const status = bal > 0.005 ? 'Gets Back' : bal < -0.005 ? 'Owes' : 'Settled';
           const statusColor = bal > 0.005 ? '#10b981' : bal < -0.005 ? '#ef4444' : '#6b7280';
           const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
           const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8f9fb';
