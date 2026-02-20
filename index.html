@@ -239,6 +239,144 @@
     color: var(--red);
   }
 
+  /* PROFILE PHOTOS */
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .member-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(250, 248, 245, 0.1));
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .member-chip-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .member-name {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .member-name-label {
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .member-edit-btn {
+    background: none;
+    border: none;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+
+  .member-edit-btn:hover {
+    color: #f0d98b;
+  }
+
+  /* PAYMENT STATUS */
+  .payment-tracker {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.03), rgba(250, 248, 245, 0.05));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+
+  .payment-status-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .payment-status-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .payment-status-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .payment-badge {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 10px;
+  }
+
+  .payment-badge.paid {
+    background: rgba(93, 139, 106, 0.3);
+    color: #5d8b6a;
+  }
+
+  .payment-badge.pending {
+    background: rgba(200, 90, 90, 0.3);
+    color: #c85a5a;
+  }
+
+  .mark-paid-btn {
+    padding: 2px 8px;
+    font-size: 10px;
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .mark-paid-btn:hover {
+    background: #f0d98b;
+    transform: scale(1.05);
+  }
+
+  .mark-paid-btn:disabled {
+    background: var(--muted);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* PROFILE MODAL */
+  .profile-photo-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--gold);
+    margin: 0 auto 12px;
+  }
+
+  .profile-photo-input {
+    display: block;
+    margin: 8px auto;
+  }
+
   .logo { display: flex; align-items: baseline; gap: 10px; }
   .logo-text {
     font-family: var(--font-display);
@@ -703,6 +841,27 @@
   .modal-close:hover { color: var(--red); }
   .modal-form-group { margin-bottom: 16px; }
 
+  .modal-form-group .file-input-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--gold);
+    color: var(--dark);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .modal-form-group .file-input-label:hover {
+    background: #f0d98b;
+    transform: scale(1.05);
+  }
+
+  .modal-form-group input[type="file"] {
+    display: none;
+  }
+
   /* HISTORY */
   .history-container { margin-top: 20px; }
   .history-item {
@@ -715,6 +874,21 @@
     color: var(--muted);
   }
   .history-date { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .history-payment-status {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(212, 175, 55, 0.1);
+  }
+  .history-status-item {
+    display: inline-block;
+    margin-right: 8px;
+  }
+  .history-status-item.paid {
+    color: #5d8b6a;
+    font-weight: 600;
+  }
 
   /* ANIMATIONS */
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -866,6 +1040,10 @@
     .expense-icon { width: 32px; height: 32px; font-size: 16px; }
     .expense-amount { font-size: 14px; }
     
+    .payment-tracker { font-size: 10px; padding: 8px; }
+    .payment-status-item { padding: 4px 6px; margin-bottom: 3px; }
+    .mark-paid-btn { padding: 2px 6px; font-size: 9px; }
+    
     .balances-grid { grid-template-columns: 1fr; gap: 10px; }
     .balance-card { padding: 12px; }
     .balance-amount { font-size: 18px; }
@@ -882,6 +1060,10 @@
     
     .modal-content { padding: 16px; }
     .modal-title { font-size: 16px; }
+    
+    .profile-photo-preview { width: 60px; height: 60px; margin: 0 auto 8px; }
+    .member-chip { padding: 8px 10px; margin-bottom: 6px; }
+    .member-edit-btn { font-size: 11px; }
   }
 
   @media (max-width: 360px) {
@@ -898,6 +1080,15 @@
     .expense-item { padding: 8px; }
     .expense-icon { width: 28px; height: 28px; font-size: 14px; }
     .expense-amount { font-size: 12px; }
+    
+    .payment-tracker { font-size: 9px; padding: 6px; }
+    .payment-status-item { padding: 3px 4px; margin-bottom: 2px; }
+    .mark-paid-btn { padding: 1px 4px; font-size: 8px; }
+    .payment-badge { padding: 1px 6px; font-size: 9px; }
+    
+    .profile-photo-preview { width: 50px; height: 50px; margin: 0 auto 6px; }
+    .member-chip { padding: 6px 8px; margin-bottom: 4px; }
+    .avatar { width: 32px !important; height: 32px !important; font-size: 13px; }
   }
 
   /* LOADING ANIMATION */
@@ -996,21 +1187,21 @@
 <div class="mobile-menu" id="mobileMenu">
   <div class="mobile-menu-header">
     <div class="mobile-menu-title">Menu</div>
-    <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
+    <button class="mobile-menu-close" onclick="closeMobileMenu()">X</button>
   </div>
   <div class="mobile-menu-section">
     <div class="mobile-menu-section-title">Navigation</div>
-    <button class="mobile-menu-item active" onclick="navGoMobile('expenses')"><span class="mobile-menu-item-icon">📑</span>Expenses</button>
-    <button class="mobile-menu-item" onclick="navGoMobile('balances')"><span class="mobile-menu-item-icon">⚖️</span>Balances</button>
-    <button class="mobile-menu-item" onclick="navGoMobile('settlement')"><span class="mobile-menu-item-icon">🤝</span>Settlement</button>
-    <button class="mobile-menu-item" onclick="navGoMobile('stats')"><span class="mobile-menu-item-icon">📊</span>Stats</button>
-    <button class="mobile-menu-item" onclick="navGoMobile('history')"><span class="mobile-menu-item-icon">📜</span>History</button>
+    <button class="mobile-menu-item active" onclick="navGoMobile('expenses')"><span class="mobile-menu-item-icon"></span>Expenses</button>
+    <button class="mobile-menu-item" onclick="navGoMobile('balances')"><span class="mobile-menu-item-icon"></span>Balances</button>
+    <button class="mobile-menu-item" onclick="navGoMobile('settlement')"><span class="mobile-menu-item-icon"></span>Settlement</button>
+    <button class="mobile-menu-item" onclick="navGoMobile('stats')"><span class="mobile-menu-item-icon"></span>Stats</button>
+    <button class="mobile-menu-item" onclick="navGoMobile('history')"><span class="mobile-menu-item-icon"></span>History</button>
   </div>
   <div class="mobile-menu-divider"></div>
   <div class="mobile-menu-section">
     <div class="mobile-menu-section-title">Actions</div>
-    <button class="mobile-menu-item" onclick="exportPDF(); closeMobileMenu();"><span class="mobile-menu-item-icon">📄</span>Export PDF</button>
-    <button class="mobile-menu-item" onclick="clearAllData();"><span class="mobile-menu-item-icon">🧹</span>Reset All</button>
+    <button class="mobile-menu-item" onclick="exportPDF(); closeMobileMenu();"><span class="mobile-menu-item-icon"></span>Export PDF</button>
+    <button class="mobile-menu-item" onclick="clearAllData();"><span class="mobile-menu-item-icon"></span>Reset All</button>
   </div>
   
   <div class="mobile-menu-divider"></div>
@@ -1061,8 +1252,8 @@
     <div>
       <div class="section-title">Actions</div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn btn-sm" style="width:100%;background:linear-gradient(135deg,#5d8b6a 0%,#4a6d54 100%)" onclick="exportPDF()">📄 Export PDF</button>
-        <button class="btn btn-sm" style="width:100%;background:linear-gradient(135deg,#c85a5a 0%,#b04949 100%)" onclick="clearAllData()">🧹 Reset All</button>
+        <button class="btn btn-sm" style="width:100%;background:linear-gradient(135deg,#5d8b6a 0%,#4a6d54 100%)" onclick="exportPDF()">PDF Export</button>
+        <button class="btn btn-sm" style="width:100%;background:linear-gradient(135deg,#c85a5a 0%,#b04949 100%)" onclick="clearAllData()">Reset All</button>
       </div>
     </div>
   </div>
@@ -1090,15 +1281,15 @@
           <div class="form-group">
             <label class="label">Category</label>
             <select id="expCategory">
-              <option value="🍽️">🍽️ Food</option>
-              <option value="🚗">🚗 Transport</option>
-              <option value="🏠">🏠 Rent</option>
-              <option value="🛒">🛒 Groceries</option>
-              <option value="🎮">🎮 Entertainment</option>
-              <option value="💊">💊 Medical</option>
-              <option value="⚡">⚡ Utilities</option>
-              <option value="✈️">✈️ Travel</option>
-              <option value="📦">📦 Other</option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Rent">Rent</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Medical">Medical</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Travel">Travel</option>
+              <option value="Other">Other</option>
             </select>
           </div>
         </div>
@@ -1134,7 +1325,7 @@
       <div id="tab-expenses">
         <div class="expenses-list" id="expensesList">
           <div class="empty-state">
-            <span class="empty-icon">📋</span>
+            <span class="empty-icon">Expenses</span>
             No expenses yet. Add your first one above!
           </div>
         </div>
@@ -1144,7 +1335,7 @@
       <div id="tab-balances" style="display:none">
         <div class="balances-grid" id="balancesGrid">
           <div class="empty-state" style="grid-column:1/-1">
-            <span class="empty-icon">⚖️</span>
+            <span class="empty-icon">Balances</span>
             Add expenses to see balances
           </div>
         </div>
@@ -1154,7 +1345,7 @@
       <div id="tab-settlement" style="display:none">
         <div id="settlementContent">
           <div class="empty-state">
-            <span class="empty-icon">🤝</span>
+            <span class="empty-icon">Settlement</span>
             No settlement needed yet
           </div>
         </div>
@@ -1164,7 +1355,7 @@
       <div id="tab-stats" style="display:none">
         <div id="statsContent">
           <div class="empty-state">
-            <span class="empty-icon">📊</span>
+            <span class="empty-icon">Stats</span>
             Add expenses to see statistics
           </div>
         </div>
@@ -1174,7 +1365,7 @@
       <div id="tab-history" style="display:none">
         <div id="historyContent">
           <div class="empty-state">
-            <span class="empty-icon">📜</span>
+            <span class="empty-icon">History</span>
             No archived expenses yet
           </div>
         </div>
@@ -1189,7 +1380,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <span class="modal-title">Edit Expense</span>
-      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <button class="modal-close" onclick="closeEditModal()">X</button>
     </div>
     <div class="modal-form-group">
       <label class="label">Description</label>
@@ -1206,20 +1397,48 @@
     <div class="modal-form-group">
       <label class="label">Category</label>
       <select id="editCategory">
-        <option value="🍽️">🍽️ Food</option>
-        <option value="🚗">🚗 Transport</option>
-        <option value="🏠">🏠 Rent</option>
-        <option value="🛒">🛒 Groceries</option>
-        <option value="🎮">🎮 Entertainment</option>
-        <option value="💊">💊 Medical</option>
-        <option value="⚡">⚡ Utilities</option>
-        <option value="✈️">✈️ Travel</option>
-        <option value="📦">📦 Other</option>
+        <option value="Food">Food</option>
+        <option value="Transport">Transport</option>
+        <option value="Rent">Rent</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Medical">Medical</option>
+        <option value="Utilities">Utilities</option>
+        <option value="Travel">Travel</option>
+        <option value="Other">Other</option>
       </select>
     </div>
     <div class="form-actions" style="margin-top: 20px;">
       <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
       <button class="btn" onclick="saveEditedExpense()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBER PROFILE MODAL -->
+<div id="memberModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">Edit Member Profile</span>
+      <button class="modal-close" onclick="closeMemberModal()">X</button>
+    </div>
+    <div style="text-align: center;">
+      <img id="memberPhotoPreview" class="profile-photo-preview" src="" alt="Profile Photo" style="display:none;">
+      <div style="width: 80px; height: 80px; margin: 0 auto 12px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700;" id="memberPhotoPlaceholder">Profile</div>
+    </div>
+    <div class="modal-form-group">
+      <label class="file-input-label">
+        📷 Upload Photo
+        <input type="file" id="memberPhotoInput" accept="image/*" onchange="previewMemberPhoto()">
+      </label>
+    </div>
+    <div class="modal-form-group">
+      <label class="label">Member Name</label>
+      <input type="text" id="memberModalName" placeholder="Member name">
+    </div>
+    <div class="form-actions" style="margin-top: 20px;">
+      <button class="btn btn-outline" onclick="closeMemberModal()">Cancel</button>
+      <button class="btn" onclick="saveMemberProfile()">Save Profile</button>
     </div>
   </div>
 </div>
@@ -1276,7 +1495,7 @@ function showNotification(type, title, message = '', duration = 4000) {
   const notification = document.createElement('div');
   notification.className = `notification ${type}`;
 
-  const iconMap = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  const iconMap = { success: '[Done]', error: '[Error]', warning: '[Warning]', info: '[Info]' };
 
   notification.innerHTML = `
     <div class="notification-icon">${iconMap[type] || iconMap.info}</div>
@@ -1284,7 +1503,7 @@ function showNotification(type, title, message = '', duration = 4000) {
       <div class="notification-title">${title}</div>
       ${message ? `<div class="notification-message">${message}</div>` : ''}
     </div>
-    <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
+    <button class="notification-close" onclick="this.parentElement.remove()">X</button>
   `;
 
   container.appendChild(notification);
@@ -1398,7 +1617,8 @@ function addMember() {
   members.push({
     id: memberIdCounter++,
     name,
-    color: COLORS[members.length % COLORS.length]
+    color: COLORS[members.length % COLORS.length],
+    photo: null
   });
 
   input.value = '';
@@ -1435,10 +1655,18 @@ function renderMembers() {
   list.innerHTML = members.map(m => `
     <div class="member-chip">
       <div class="member-chip-left">
-        <div class="avatar" style="background:${m.color}">${m.name[0].toUpperCase()}</div>
-        <span class="member-name">${m.name}</span>
+        ${m.photo ? 
+          `<img src="${m.photo}" class="avatar-img" style="width:40px;height:40px;border:2px solid var(--gold);">` : 
+          `<div class="avatar" style="background:${m.color}">${m.name[0].toUpperCase()}</div>`
+        }
+        <div class="member-name">
+          <span class="member-name-label">${m.name}</span>
+        </div>
       </div>
-      <button class="remove-btn" onclick="removeMember(${m.id})">✕</button>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <button class="member-edit-btn" onclick="openMemberModal(${m.id})" title="Edit Profile">Edit</button>
+        <button class="remove-btn" onclick="removeMember(${m.id})">Remove</button>
+      </div>
     </div>
   `).join('');
   
@@ -1493,10 +1721,16 @@ function renderMobileMembersList() {
   list.innerHTML = members.map(m => `
     <div class="mobile-member-chip">
       <div class="mobile-member-info">
-        <div class="mobile-member-avatar" style="background:${m.color}">${m.name[0].toUpperCase()}</div>
+        ${m.photo ? 
+          `<img src="${m.photo}" class="avatar-img" style="width:30px;height:30px;border:1px solid var(--gold);">` : 
+          `<div class="mobile-member-avatar" style="background:${m.color}">${m.name[0].toUpperCase()}</div>`
+        }
         <span>${m.name}</span>
       </div>
-      <button class="mobile-member-remove" onclick="removeMemberMobile(${m.id})" title="Remove">✕</button>
+      <div style="display:flex;gap:3px;align-items:center;">
+        <button class="mobile-member-remove" onclick="openMemberModal(${m.id})" title="Edit Profile" style="font-size:11px;padding:2px 4px;background:var(--gold);color:var(--dark);border:none;border-radius:3px;cursor:pointer;font-weight:600;">Edit</button>
+        <button class="mobile-member-remove" onclick="removeMemberMobile(${m.id})" title="Remove" style="font-size:11px;padding:2px 4px;background:var(--red);color:white;border:none;border-radius:3px;cursor:pointer;font-weight:600;">Remove</button>
+      </div>
     </div>
   `).join('');
 }
@@ -1514,7 +1748,8 @@ function addMemberMobile() {
   members.push({
     id: memberIdCounter++,
     name,
-    color: COLORS[members.length % COLORS.length]
+    color: COLORS[members.length % COLORS.length],
+    photo: null
   });
 
   input.value = '';
@@ -1560,14 +1795,22 @@ function addExpense() {
   if (!paidById) { showNotification('error', 'Payer Required', 'Please select who paid'); return; }
   if (selectedSplit.size === 0) { showNotification('error', 'Split Required', 'Please select who to split with'); return; }
 
+  const splitArray = [...selectedSplit].map(Number);
+  const paidStatus = {};
+  splitArray.forEach(id => {
+    paidStatus[id] = id === paidById ? true : false;
+  });
+
   expenses.push({
     id: memberIdCounter++,
     desc,
     amount,
     paidById,
     category,
-    splitBetween: [...selectedSplit].map(Number),
-    date: new Date().toLocaleDateString('en-GB')
+    splitBetween: splitArray,
+    date: new Date().toLocaleDateString('en-GB'),
+    paidStatus,
+    archivedDate: null
   });
 
   saveData();
@@ -1585,6 +1828,106 @@ function deleteExpense(id) {
   showNotification('success', 'Expense Deleted', `${expense?.desc || 'Expense'} has been removed`);
 }
 
+/* MEMBER PROFILE MANAGEMENT */
+let editingMemberId = null;
+let memberPhotoData = null;
+
+function openMemberModal(id) {
+  editingMemberId = id;
+  const member = getMember(id);
+  if (!member) return;
+  
+  document.getElementById('memberModalName').value = member.name;
+  memberPhotoData = member.photo;
+  
+  const preview = document.getElementById('memberPhotoPreview');
+  const placeholder = document.getElementById('memberPhotoPlaceholder');
+  const input = document.getElementById('memberPhotoInput');
+  
+  if (member.photo) {
+    preview.src = member.photo;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    preview.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
+  
+  input.value = '';
+  document.getElementById('memberModal').classList.add('active');
+}
+
+function closeMemberModal() {
+  document.getElementById('memberModal').classList.remove('active');
+  editingMemberId = null;
+  memberPhotoData = null;
+}
+
+function previewMemberPhoto() {
+  const input = document.getElementById('memberPhotoInput');
+  const preview = document.getElementById('memberPhotoPreview');
+  const placeholder = document.getElementById('memberPhotoPlaceholder');
+  
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      memberPhotoData = e.target.result;
+      preview.src = memberPhotoData;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function saveMemberProfile() {
+  const member = getMember(editingMemberId);
+  if (!member) return;
+  
+  const name = document.getElementById('memberModalName').value.trim();
+  if (!name) {
+    showNotification('error', 'Empty Name', 'Please enter a member name');
+    return;
+  }
+  
+  if (name !== member.name && members.find(m => m.name.toLowerCase() === name.toLowerCase() && m.id !== member.id)) {
+    showNotification('error', 'Duplicate Name', 'A member with this name already exists');
+    return;
+  }
+  
+  member.name = name;
+  member.photo = memberPhotoData;
+  
+  saveData();
+  renderMembers();
+  updateSelectors();
+  closeMemberModal();
+  showNotification('success', 'Profile Updated', `${name}'s profile has been updated`);
+}
+
+/* PAYMENT STATUS MANAGEMENT */
+function markAsPaid(expenseId, memberId) {
+  const expense = expenses.find(e => e.id === expenseId);
+  if (!expense) return;
+  
+  if (!expense.paidStatus) {
+    expense.paidStatus = {};
+  }
+  
+  expense.paidStatus[memberId] = true;
+  
+  const allPaid = Object.values(expense.paidStatus).every(paid => paid);
+  if (allPaid) {
+    showNotification('success', 'All Paid!', `All payments received for "${expense.desc}" - Ready to archive!`);
+  } else {
+    const member = getMember(memberId);
+    showNotification('success', 'Payment Recorded', `${member?.name} marked as paid`);
+  }
+  
+  saveData();
+  renderAll();
+}
+
 function getMember(id) { return members.find(m => m.id === id); }
 
 function renderAll() {
@@ -1597,7 +1940,7 @@ function renderAll() {
 function renderExpenses() {
   const list = document.getElementById('expensesList');
   if (!expenses.length) {
-    list.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span>No expenses yet. Add your first one above!</div>`;
+    list.innerHTML = `<div class="empty-state"><span class="empty-icon">Expenses</span>No expenses yet. Add your first one above!</div>`;
     return;
   }
 
@@ -1605,6 +1948,29 @@ function renderExpenses() {
     const payer = getMember(e.paidById);
     const split = e.splitBetween.map(id => getMember(id)?.name).filter(Boolean).join(', ');
     const perPerson = e.amount / e.splitBetween.length;
+    
+    const paidStatus = e.paidStatus || {};
+    const allPaid = Object.values(paidStatus).every(paid => paid);
+    
+    let paymentTrackerHTML = '<div class="payment-tracker"><div style="font-weight:600;margin-bottom:6px;font-size:11px;text-transform:uppercase;opacity:0.8;">[Payment] Payment Status</div>';
+    e.splitBetween.forEach(memberId => {
+      const member = getMember(memberId);
+      const isPaid = paidStatus[memberId] || false;
+      const status = isPaid ? 'paid' : 'pending';
+      const statusText = isPaid ? '[Done] Paid' : '[Pending] Pending';
+      paymentTrackerHTML += `
+        <div class="payment-status-item">
+          <div class="payment-status-left">
+            <div class="avatar" style="background:${member?.color};width:20px;height:20px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">${member?.name[0]}</div>
+            <span>${member?.name}</span>
+            <span class="payment-badge ${status}">${statusText}</span>
+          </div>
+          ${!isPaid ? `<button class="mark-paid-btn" onclick="markAsPaid(${e.id}, ${memberId})">Mark Paid</button>` : '<span style="font-size:10px;color:#5d8b6a;font-weight:600">[Done]</span>'}
+        </div>
+      `;
+    });
+    paymentTrackerHTML += '</div>';
+    
     return `
       <div class="expense-item">
         <div class="expense-left">
@@ -1613,13 +1979,18 @@ function renderExpenses() {
             <div class="expense-name">${e.desc}</div>
             <div class="expense-meta">Paid by <strong>${payer?.name || '?'}</strong> · Split: ${split}</div>
             <div class="expense-meta">${e.date} · ₨${formatPKR(perPerson)}/person</div>
+            ${paymentTrackerHTML}
+            ${allPaid ? '<div style="font-size:11px;color:#5d8b6a;font-weight:600;margin-top:8px;">[Done] All payments received - Ready to archive</div>' : ''}
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-direction:column;">
           <div class="expense-amount">₨ ${formatPKR(e.amount)}</div>
           <div class="expense-actions">
-            <button class="btn-edit" onclick="openEditModal(${e.id})" title="Edit">✏️</button>
-            <button class="btn-delete" onclick="deleteExpense(${e.id})" title="Delete">🗑️</button>
+            <button class="btn-edit" onclick="openEditModal(${e.id})" title="Edit">Edit</button>
+            ${allPaid ? 
+              `<button style="padding:6px 8px;border:none;background:#5d8b6a;color:white;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;" onclick="archiveExpense(${e.id})">Archive</button>` :
+              `<button class="btn-delete" onclick="deleteExpense(${e.id})" title="Delete">Delete</button>`
+            }
           </div>
         </div>
       </div>
@@ -1649,11 +2020,11 @@ function computeBalances() {
 function renderBalances() {
   const grid = document.getElementById('balancesGrid');
   if (!members.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">⚖️</span>Add members to see balances</div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">Balances</span>Add members to see balances</div>`;
     return;
   }
   if (!expenses.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">⚖️</span>Add expenses to see balances</div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">Expenses</span>Add expenses to see balances</div>`;
     return;
   }
 
@@ -1662,7 +2033,7 @@ function renderBalances() {
     const bal = net[m.id] !== undefined ? net[m.id] : 0;
     const THRESHOLD = 0.005;
     const cls = bal > THRESHOLD ? 'positive' : bal < -THRESHOLD ? 'negative' : 'neutral';
-    const label = bal > THRESHOLD ? 'gets back' : bal < -THRESHOLD ? 'owes' : 'settled ✓';
+    const label = bal > THRESHOLD ? 'gets back' : bal < -THRESHOLD ? 'owes' : 'settled [Done]';
     const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
     return `
       <div class="balance-card">
@@ -1691,7 +2062,7 @@ function formatPKR(amount) {
 function renderSettlement() {
   const container = document.getElementById('settlementContent');
   if (!expenses.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🤝</span>No settlement needed yet</div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">Settlement</span>No settlement needed yet</div>`;
     return;
   }
 
@@ -1828,7 +2199,7 @@ function renderStats() {
   const container = document.getElementById('statsContent');
 
   if (!expenses.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">📊</span>Add expenses to see statistics</div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">Stats</span>Add expenses to see statistics</div>`;
     return;
   }
 
@@ -1882,18 +2253,22 @@ function archiveExpense(id) {
   const expense = expenses.find(e => e.id === id);
   if (!expense) return;
 
-  archivedExpenses.push({ ...expense, archivedDate: new Date().toLocaleString() });
+  archivedExpenses.push({ 
+    ...expense, 
+    archivedDate: new Date().toLocaleString(),
+    completedDate: new Date().toLocaleDateString('en-GB')
+  });
   expenses = expenses.filter(e => e.id !== id);
   saveData();
   renderAll();
-  showNotification('success', 'Archived', `${expense.desc} moved to history`);
+  showNotification('success', 'Archived', `${expense.desc} moved to history with all payments completed ✅`);
 }
 
 function renderHistory() {
   const container = document.getElementById('historyContent');
 
   if (archivedExpenses.length === 0) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">📜</span>No archived expenses yet</div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">History</span>No archived expenses yet</div>`;
     return;
   }
 
@@ -1903,11 +2278,28 @@ function renderHistory() {
   sortedArchived.forEach(e => {
     const payer = getMember(e.paidById);
     const split = e.splitBetween.map(id => getMember(id)?.name).filter(Boolean).join(', ');
+    const paidStatus = e.paidStatus || {};
+    
+    let statusHTML = '<div class="history-payment-status">[Payment] Payment Status: ';
+    const paidMembers = e.splitBetween.filter(id => paidStatus[id]).length;
+    const totalMembers = e.splitBetween.length;
+    statusHTML += `<strong>${paidMembers}/${totalMembers} Paid</strong>`;
+    
+    e.splitBetween.forEach(memberId => {
+      const member = getMember(memberId);
+      if (paidStatus[memberId]) {
+        statusHTML += `<span class="history-status-item paid">[Done] ${member?.name}</span>`;
+      }
+    });
+    
+    statusHTML += '</div>';
+    
     html += `
       <div class="history-item">
-        <div class="history-date">${e.archivedDate} - Archived</div>
+        <div class="history-date">[Done] ${e.completedDate || e.archivedDate} - Completed</div>
         <div style="margin-bottom: 6px;"><strong>${e.category} ${e.desc}</strong> - ₨ ${formatPKR(e.amount)}</div>
         <div style="font-size: 11px; opacity: 0.8;">Paid by ${payer?.name}, Split: ${split}</div>
+        ${statusHTML}
       </div>
     `;
   });
@@ -1988,7 +2380,7 @@ function exportPDF() {
         ${members.map((m, idx) => {
           const net = computeBalances();
           const bal = net[m.id] || 0;
-          const status = bal > 0.005 ? '✓ Gets Back' : bal < -0.005 ? '⚠ Owes' : '✓ Settled';
+          const status = bal > 0.005 ? '[Done] Gets Back' : bal < -0.005 ? '[Warning] Owes' : '[Done] Settled';
           const statusColor = bal > 0.005 ? '#10b981' : bal < -0.005 ? '#ef4444' : '#6b7280';
           const display = Math.abs(bal) < 0.005 ? '0' : formatPKR(Math.abs(bal));
           const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8f9fb';
@@ -2066,7 +2458,7 @@ function initialize() {
 
   if (!hasData) {
     ['Ahmed', 'Fatima', 'Hassan', 'Zara'].forEach(name => {
-      members.push({ id: memberIdCounter++, name, color: COLORS[members.length % COLORS.length] });
+      members.push({ id: memberIdCounter++, name, color: COLORS[members.length % COLORS.length], photo: null });
     });
   }
 
