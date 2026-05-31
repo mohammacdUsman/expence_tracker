@@ -4,8 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Expensify — Split Expenses</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  @font-face {
+    font-family: 'Playfair Display';
+    src: local('Georgia'), local('Times New Roman'), serif;
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'DM Sans';
+    src: local('Segoe UI'), local('Helvetica'), sans-serif;
+    font-weight: 400;
+  }
+</style>
 
 <style>
   :root {
@@ -2440,16 +2450,23 @@ function exportPDF() {
     </div>
   `;
 
-  const opt = {
-    margin: [10, 10, 15, 10],
-    filename: `Expensify_Report_${new Date().toISOString().slice(0,10)}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-  };
-
-  html2pdf().set(opt).from(element).save();
-  showNotification('success', 'PDF Generated', 'Professional report downloaded successfully');
+  // Offline-friendly PDF export using simple print functionality
+  const printWindow = window.open('', '', 'width=900,height=600');
+  printWindow.document.write(element.innerHTML);
+  printWindow.document.head.innerHTML = `
+    <meta charset="UTF-8">
+    <title>Expensify Report</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #1f2937; margin: 0; padding: 20px; }
+      table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+      th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+      th { background: #f8f9fb; font-weight: bold; }
+      @media print { body { margin: 0; } }
+    </style>
+  ` + printWindow.document.head.innerHTML;
+  printWindow.document.title = `Expensify_Report_${new Date().toISOString().slice(0,10)}`;
+  printWindow.print();
+  showNotification('success', 'Print Ready', 'Report opened in print dialog. Use Ctrl+P to save as PDF or print');
 }
 
 /* INIT */
